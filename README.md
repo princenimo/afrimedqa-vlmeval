@@ -73,7 +73,7 @@ Evaluates open-ended diagnostic reasoning on SAQ questions containing both text 
 LMUData=test_files python run.py --config configs/afrimedsaq.json --judge gpt-5.2
 ```
 
-#### B. Multimodal MCQ (Baseline)
+#### B. Multimodal MCQ
 Evaluates vision-language models on MCQ questions containing both text and images.
 
 ``` bash
@@ -81,7 +81,7 @@ LMUData=test_files python run.py --config configs/gemma_mcq_baseline.json
 ```
 
 
-#### C. Text-Only MCQ (Baseline)
+#### C. Text-Only MCQ
 Evaluates models using the text-only baseline.
 
 ``` bash

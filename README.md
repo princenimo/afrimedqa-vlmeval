@@ -37,30 +37,59 @@ python html_to_tsv.py   --html All_Pics_Questions/All_Pics_Questions.html   --ou
     -   The script converts the AfriMedQA dataset from its original HTML format into a clean TSV file, extracting questions, options, and correct answers while embedding any images in base64 format for evaluation with VLMEvalKit.
 
 
-### 3) Set up LMUData directory
 
-Export the dataset path and copy the TSV into place:
+### 3) Run an evaluation
+
+#### Configuration File Setup
+
+The evaluation commands rely on JSON files stored in the `configs/` directory. These files allow you to easily define the model path, and the dataset class you want to use without modifying the core Python code.
+
+#### Example JSON Structure (`configs/afrimedsaq.json`)
+
+```json
+{
+    "model": {
+        "medgemma-27b-it": {
+            "class": "Gemma3", 
+            "model_path": "google/medgemma-27b-it",
+            "use_vllm": true,
+            "tensor_parallel_size": 2
+        }
+    },
+    "data": {
+        "ENGLISH_TEST__Sheet1": {
+            "class": "AfrimedShortQA",
+            "dataset": "ENGLISH_TEST__Sheet1"
+        }
+    }
+}
+```
+Set LMUData to the appropriate directory (path to dataset directory) at the start of each command.
+
+#### A. Short Answer Questions (SAQ)
+Evaluates open-ended diagnostic reasoning on SAQ questions containing both text and images.
 
 ``` bash
-export LMUData=/path/to/LMUData     
-mkdir -p $LMUData
-cp AfrimedQA.tsv $LMUData/
+LMUData=test_files python run.py --config configs/afrimedsaq.json --judge gpt-5.2
 ```
 
-> **Note:** VLMEvalKit uses `LMUDataRoot()` to locate datasets. By
-> setting `LMUData`, you tell it where to look.
-
-### 4) Run an evaluation
+#### B. Multimodal MCQ (Baseline)
+Evaluates vision-language models on MCQ questions containing both text and images.
 
 ``` bash
-python run.py --data AfrimedQA --model Idefics3-8B-Llama3 --work-dir VLMEvalKit/results
+LMUData=test_files python run.py --config configs/gemma_mcq_baseline.json
 ```
 
--   `--data AfrimedQA` → selects the benchmark\
--   `--model Idefics3-8B-Llama3` → chooses the LVLM\
--   `--work-dir` → directory where logs/results are saved
 
-### 5) Outputs
+#### C. Text-Only MCQ (Baseline)
+Evaluates models using the text-only baseline.
+
+``` bash
+LMUData=test_files python run.py --config configs/gemma_text_baseline.json
+```
+
+
+### 4) Outputs
 
 -   Per-question predictions and hits\
 -   Accuracy summary CSV: `_acc_all.csv`\
